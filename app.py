@@ -343,9 +343,9 @@ def create_gradio_interface():
                 gr.Examples(
                     examples=[
                         ["md3/1.jpg", "Object Detection", "boats", 7],
-                        ["md3/2.jpg", "Point Detection", "candy", 7],
+                        ["md3/2.jpg", "Point Detection", "children", 7],
                         ["md3/3.png", "Caption", "", 5],
-                        ["md3/4.jpeg", "Visual Question Answering", "Analyze the GDP trend over the yearsAnalyze the GDP trend over the years.", 5],
+                        ["md3/4.jpeg", "Visual Question Answering", "Analyze the GDP trend over the years.", 5],
                     ],
                     inputs=[md3_image_input, md3_task_type, md3_prompt_input, md3_max_objects],
                     label="Click an example to populate inputs"
