@@ -2,6 +2,9 @@
 
 A comprehensive multimodal vision-language model application supporting image inference and visual question answering. This repository hosts a Gradio-based demo that integrates several specialized models for document processing, OCR, spatial reasoning, and object/point detection.
 
+| ![Screenshot 1](https://cdn-uploads.huggingface.co/production/uploads/65bb837dbfb878f46c77de4c/_S19YAr5DxH-xy6VCwePx.png) | ![Screenshot 2](https://cdn-uploads.huggingface.co/production/uploads/65bb837dbfb878f46c77de4c/2i_-jl3oyV5xS0JKt3kEL.png) | ![Screenshot 3](https://cdn-uploads.huggingface.co/production/uploads/65bb837dbfb878f46c77de4c/t_uKEbQYoqukwC0y3pxoZ.png) | ![Screenshot 4](https://cdn-uploads.huggingface.co/production/uploads/65bb837dbfb878f46c77de4c/TVvTv5op71U0ZD34Hmthr.png) |
+|---|---|---|---|
+
 ---
 
 ## Project Highlights
