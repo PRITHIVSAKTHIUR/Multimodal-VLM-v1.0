@@ -5,8 +5,6 @@ A comprehensive multimodal vision-language model application supporting image in
 | ![Screenshot 1](https://cdn-uploads.huggingface.co/production/uploads/65bb837dbfb878f46c77de4c/_S19YAr5DxH-xy6VCwePx.png) | ![Screenshot 2](https://cdn-uploads.huggingface.co/production/uploads/65bb837dbfb878f46c77de4c/2i_-jl3oyV5xS0JKt3kEL.png) | ![Screenshot 3](https://cdn-uploads.huggingface.co/production/uploads/65bb837dbfb878f46c77de4c/t_uKEbQYoqukwC0y3pxoZ.png) | ![Screenshot 4](https://cdn-uploads.huggingface.co/production/uploads/65bb837dbfb878f46c77de4c/TVvTv5op71U0ZD34Hmthr.png) |
 |---|---|---|---|
 
----
-
 ## Project Highlights
 
 * **Interactive web UI** built with Gradio that supports streaming text output and image-based model tasks.
@@ -18,8 +16,6 @@ A comprehensive multimodal vision-language model application supporting image in
 * **Streaming generation** using `TextIteratorStreamer` for real-time text display while the model generates.
 * **On-device GPU support** via `spaces.GPU` decorator and automatic `torch` device detection.
 
----
-
 ## System Requirements
 
 * **GPU**: Recommended NVIDIA GPU with CUDA support (demo auto-detects `cuda` vs `cpu`).
@@ -28,8 +24,6 @@ A comprehensive multimodal vision-language model application supporting image in
 * **PyTorch**: A CUDA-enabled PyTorch build compatible with your GPU (e.g. `torch` with CUDA support).
 
 > Note: The repository is developed and tested in an environment with modern CUDA and PyTorch builds. Exact version mismatch may cause model-loading errors; verify your installed `torch` version and CUDA compatibility.
-
----
 
 ## Required Python Packages
 
@@ -41,8 +35,6 @@ pip install transformers gradio pillow numpy torch torchvision torchaudio superv
 ```
 
 Additional optional tools referenced by the demo: `qwen-vl-utils` or other vendor utilities if you plan to use Qwen-specific processors outside of the provided `AutoProcessor`.
-
----
 
 ## Models Loaded in Code
 
@@ -65,8 +57,6 @@ The demo script (`app.py` or the main file) loads these models:
    * Loaded with `AutoModelForCausalLM.from_pretrained`.
    * The demo uses this model for quick image-based tasks: object detection, point detection, captioning, and VQA.
    * Configured with `torch_dtype=torch.bfloat16` and compiled on the device.
-
----
 
 ## How the Demo Works
 
@@ -107,8 +97,6 @@ The demo script (`app.py` or the main file) loads these models:
 * `demo.queue(max_size=50)` to support concurrent requests in a queued fashion.
 * Launch flags: `share=True, ssr_mode=False, mcp_server=True, show_error=True` (adjust these for your deployment environment).
 
----
-
 ## Usage Examples
 
 * **OCR / Document Extraction**
@@ -131,8 +119,6 @@ The demo script (`app.py` or the main file) loads these models:
 * **Precision**: The script uses mixed precision (`float16` or `bfloat16`) when loading large models to reduce VRAM usage. Adjust `torch_dtype` if needed.
 * **Device Mapping**: `moondream3-preview` is compiled and sent to CUDA with `device_map={"": "cuda"}` in the example code — change this if you are running on CPU or a different device topology.
 
----
-
 ## Performance & Limitations
 
 * The demo is optimized for a single CUDA device but will fall back to CPU if no GPU is available.
@@ -140,21 +126,15 @@ The demo script (`app.py` or the main file) loads these models:
 * Objects/points annotation rely on normalized coordinates returned by the Moondream3 model — results may vary by model version.
 * Example paths in the UI (`examples/` and `md3/`) assume those files exist in the repo; include them when packaging.
 
----
-
 ## Troubleshooting
 
 * **Model Load Errors**: Ensure `trust_remote_code=True` for vendor models and that you have network access to download the model weights.
 * **CUDA OOM**: Lower `max_new_tokens`, switch to smaller models, or use CPU-only debugging.
 * **Slow or No Stream**: Confirm `TextIteratorStreamer` is compatible with the chosen model and that `processor.apply_chat_template` is returning the expected prompt.
 
----
-
 ## Contributing
 
 Contributions, issues, and feature requests are welcome. Please open issues in the repository and include logs and reproduction steps for problems.
-
----
 
 ## License
 
