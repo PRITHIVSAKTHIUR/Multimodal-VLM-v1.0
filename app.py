@@ -4,7 +4,7 @@ import math
 import os
 import traceback
 from io import BytesIO
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Iterable
 import re
 import time
 from threading import Thread
@@ -27,9 +27,90 @@ from transformers import (
     AutoProcessor,
     TextIteratorStreamer,
 )
+from gradio.themes import Soft
+from gradio.themes.utils import colors, fonts, sizes
+
+# --- Theme and CSS Definition ---
+
+# Define the SteelBlue color palette
+colors.steel_blue = colors.Color(
+    name="steel_blue",
+    c50="#EBF3F8",
+    c100="#D3E5F0",
+    c200="#A8CCE1",
+    c300="#7DB3D2",
+    c400="#529AC3",
+    c500="#4682B4",  # SteelBlue base color
+    c600="#3E72A0",
+    c700="#36638C",
+    c800="#2E5378",
+    c900="#264364",
+    c950="#1E3450",
+)
+
+
+class SteelBlueTheme(Soft):
+    def __init__(
+        self,
+        *,
+        primary_hue: colors.Color | str = colors.gray,
+        secondary_hue: colors.Color | str = colors.steel_blue,
+        neutral_hue: colors.Color | str = colors.slate,
+        text_size: sizes.Size | str = sizes.text_lg,
+        font: fonts.Font | str | Iterable[fonts.Font | str] = (
+            fonts.GoogleFont("Outfit"), "Arial", "sans-serif",
+        ),
+        font_mono: fonts.Font | str | Iterable[fonts.Font | str] = (
+            fonts.GoogleFont("IBM Plex Mono"), "ui-monospace", "monospace",
+        ),
+    ):
+        super().__init__(
+            primary_hue=primary_hue,
+            secondary_hue=secondary_hue,
+            neutral_hue=neutral_hue,
+            text_size=text_size,
+            font=font,
+            font_mono=font_mono,
+        )
+        super().set(
+            background_fill_primary="*primary_50",
+            background_fill_primary_dark="*primary_900",
+            body_background_fill="linear-gradient(135deg, *primary_200, *primary_100)",
+            body_background_fill_dark="linear-gradient(135deg, *primary_900, *primary_800)",
+            button_primary_text_color="white",
+            button_primary_text_color_hover="white",
+            button_primary_background_fill="linear-gradient(90deg, *secondary_500, *secondary_600)",
+            button_primary_background_fill_hover="linear-gradient(90deg, *secondary_600, *secondary_700)",
+            button_primary_background_fill_dark="linear-gradient(90deg, *secondary_600, *secondary_700)",
+            button_primary_background_fill_hover_dark="linear-gradient(90deg, *secondary_500, *secondary_600)",
+            slider_color="*secondary_500",
+            slider_color_dark="*secondary_600",
+            block_title_text_weight="600",
+            block_border_width="3px",
+            block_shadow="*shadow_drop_lg",
+            button_primary_shadow="*shadow_drop_lg",
+            button_large_padding="11px",
+            color_accent_soft="*primary_100",
+            block_label_background_fill="*primary_200",
+        )
+
+# Instantiate the new theme
+steel_blue_theme = SteelBlueTheme()
+
+css = """
+#main-title h1 {
+    font-size: 2.3em !important;
+}
+#output-title h2 {
+    font-size: 2.1em !important;
+}
+"""
+
 
 # --- Constants and Model Setup ---
 MAX_INPUT_TOKEN_LENGTH = 4096
+MAX_MAX_NEW_TOKENS = 4096
+DEFAULT_MAX_NEW_TOKENS = 2048
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 print("--- System Information ---")
@@ -266,47 +347,39 @@ def process_document_stream(
         time.sleep(0.01)
         yield buffer
 
-# --- Gradio UI Definition ---
 def create_gradio_interface():
     """Builds and returns the Gradio web interface."""
-    css = """
-    .main-container { max-width: 1400px; margin: 0 auto; }
-    .process-button { border: none !important; color: white !important; font-weight: bold !important; background-color: blue !important;}
-    .process-button:hover { background-color: darkblue !important; transform: translateY(-2px) !important; box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important; }
-    .processr-button { border: none !important; color: white !important; font-weight: bold !important; background-color: blue !important;}
-    .processr-button:hover { background-color: darkblue !important; transform: translateY(-2px) !important; box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important; }
-    """
-    with gr.Blocks(theme="bethecloud/storj_theme", css=css) as demo:
-        gr.Markdown("# Multimodal VLM v1.0 ⚡")
+
+    with gr.Blocks(theme=steel_blue_theme, css=css) as demo:
+        gr.Markdown("# **Multimodal VLM v1.0**", elem_id="main-title")
         gr.Markdown("Explore the capabilities of various Vision Language Models for tasks like OCR, VQA, and Object Detection.")
 
         with gr.Tabs():
             # --- TAB 1: Document and General VLMs ---
             with gr.TabItem("📄 Document & General VLM"):
                 with gr.Row():
-                    with gr.Column(scale=1):
-                        #gr.Markdown("### 1. Configure Inputs")
+                    with gr.Column(scale=2):
                         model_choice = gr.Dropdown(
                             choices=["Camel-Doc-OCR-062825 (OCR)", "GLM-4.1V-9B (Thinking)"],
                             label="Select Model", value= "Camel-Doc-OCR-062825 (OCR)"
                         )
-                        image_input_doc = gr.Image(label="Upload Image", type="pil", sources=['upload'], height=280)
+                        image_input_doc = gr.Image(label="Upload Image", type="pil", sources=['upload'], height=290)
                         prompt_input_doc = gr.Textbox(label="Query Input", placeholder="e.g., 'Transcribe the text in this document.'")
                         
-                        with gr.Accordion("Advanced Generation Settings", open=False):
-                            max_new_tokens = gr.Slider(minimum=256, maximum=4096, value=2048, step=128, label="Max New Tokens")
+                        with gr.Accordion("Advanced options", open=False):
+                            max_new_tokens = gr.Slider(minimum=1, maximum=MAX_MAX_NEW_TOKENS, value=DEFAULT_MAX_NEW_TOKENS, step=1, label="Max New Tokens")
                             temperature = gr.Slider(label="Temperature", minimum=0.1, maximum=2.0, step=0.1, value=0.7)
                             top_p = gr.Slider(label="Top-p", minimum=0.1, maximum=1.0, step=0.05, value=0.9)
-                            top_k = gr.Slider(label="Top-k", minimum=1, maximum=100, step=1, value=40)
+                            top_k = gr.Slider(label="Top-k", minimum=1, maximum=1000, step=1, value=40)
                             repetition_penalty = gr.Slider(label="Repetition Penalty", minimum=1.0, maximum=2.0, step=0.05, value=1.1)
 
-                        process_btn = gr.Button("🚀 Process", variant="primary", elem_classes=["process-button"])
-                        clear_btn = gr.Button("🗑️ Clear", variant="secondary")
+                        with gr.Row():
+                            process_btn = gr.Button("Submit", variant="primary")
+                            clear_btn = gr.Button("Clear", variant="secondary")
 
-                    with gr.Column(scale=2):
-                        #gr.Markdown("### 2. View Output")
-                        with gr.Tab("Output Stream"):
-                            output_stream = gr.Textbox(label="Model Output", interactive=False, lines=24, show_copy_button=True)
+                    with gr.Column(scale=3):
+                        gr.Markdown("## Output", elem_id="output-title")
+                        output_stream = gr.Textbox(label="Raw Output Stream", interactive=False, lines=24, show_copy_button=True)
                             
                 gr.Examples(
                     examples=[
@@ -334,7 +407,7 @@ def create_gradio_interface():
                             label="Max Objects (for Object Detection only)",
                             value=10, minimum=1, maximum=50, step=1, visible=True
                         )
-                        md3_generate_btn = gr.Button(value="🚀 Process", variant="primary", elem_classes=["processr-button"])
+                        md3_generate_btn = gr.Button(value="Submit", variant="primary")
                     with gr.Column(scale=1):
                         md3_output_image = gr.Image(type="pil", label="Result", height=400)
                         md3_output_textbox = gr.Textbox(label="Model Response", lines=10, show_copy_button=True)
@@ -351,9 +424,6 @@ def create_gradio_interface():
                     label="Click an example to populate inputs"
                 )
 
-        # --- Event Handlers ---
-        
-        # Document Tab
         process_btn.click(
             fn=process_document_stream,
             inputs=[model_choice, image_input_doc, prompt_input_doc, max_new_tokens, temperature, top_p, top_k, repetition_penalty],
@@ -377,4 +447,4 @@ def create_gradio_interface():
 
 if __name__ == "__main__":
     demo = create_gradio_interface()
-    demo.queue(max_size=50).launch(share=True, ssr_mode=False, mcp_server=True, show_error=True)
+    demo.queue(max_size=50).launch(ssr_mode=False, mcp_server=True, show_error=True)
