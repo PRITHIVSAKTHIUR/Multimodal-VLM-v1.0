@@ -1,4 +1,3 @@
-flash-attn @ https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.3/flash_attn-2.7.3+cu12torch2.6cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
 git+https://github.com/huggingface/transformers.git@v4.57.1
 git+https://github.com/huggingface/accelerate.git
 git+https://github.com/huggingface/peft.git
@@ -9,7 +8,6 @@ pyvips-binary
 sentencepiece
 opencv-python
 docling-core
-torch==2.6.0
 python-docx
 torchvision
 supervision 
@@ -25,6 +23,7 @@ pyvips
 pillow
 gradio
 einops
+torch
 httpx
 fpdf
 timm
