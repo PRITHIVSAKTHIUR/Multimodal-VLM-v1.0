@@ -350,12 +350,47 @@ def process_document_stream(
 def create_gradio_interface():
     """Builds and returns the Gradio web interface."""
 
-    with gr.Blocks(theme=steel_blue_theme, css=css) as demo:
+    with gr.Blocks() as demo:
         gr.Markdown("# **Multimodal VLM v1.0**", elem_id="main-title")
         gr.Markdown("Explore the capabilities of various Vision Language Models for tasks like OCR, VQA, and Object Detection.")
 
         with gr.Tabs():
-            # --- TAB 1: Document and General VLMs ---
+
+            # --- TAB 1: Moondream3 Lab ---
+            with gr.TabItem("🌝 Moondream3"):
+                with gr.Row():
+                    with gr.Column(scale=1):
+                        md3_image_input = gr.Image(label="Upload an image", type="pil", height=400)
+                        md3_task_type = gr.Radio(
+                            choices=["Object Detection", "Point Detection", "Caption", "Visual Question Answering"],
+                            label="Task Type", value="Object Detection"
+                        )
+                        md3_prompt_input = gr.Textbox(
+                            label="Prompt (object to detect/question to ask)",
+                            placeholder="e.g., 'car', 'person', 'What's in this image?'"
+                        )
+                        md3_max_objects = gr.Number(
+                            label="Max Objects (for Object Detection only)",
+                            value=10, minimum=1, maximum=50, step=1, visible=True
+                        )
+                        md3_generate_btn = gr.Button(value="Submit", variant="primary")
+                    with gr.Column(scale=1):
+                        md3_output_image = gr.Image(type="pil", label="Result", height=400)
+                        md3_output_textbox = gr.Textbox(label="Model Response", lines=10, interactive=True)
+                        md3_output_time = gr.Markdown()
+
+                gr.Examples(
+                    examples=[
+                        ["md3/1.jpg", "Object Detection", "boats", 7],
+                        ["md3/2.jpg", "Point Detection", "children", 7],
+                        ["md3/3.png", "Caption", "", 5],
+                        ["md3/4.jpeg", "Visual Question Answering", "Analyze the GDP trend over the years.", 5],
+                    ],
+                    inputs=[md3_image_input, md3_task_type, md3_prompt_input, md3_max_objects],
+                    label="Click an example to populate inputs"
+                )
+                
+            # --- TAB 2: Document and General VLMs ---
             with gr.TabItem("📄 Document & General VLM"):
                 with gr.Row():
                     with gr.Column(scale=2):
@@ -379,7 +414,7 @@ def create_gradio_interface():
 
                     with gr.Column(scale=3):
                         gr.Markdown("## Output", elem_id="output-title")
-                        output_stream = gr.Textbox(label="Raw Output Stream", interactive=False, lines=24, show_copy_button=True)
+                        output_stream = gr.Textbox(label="Raw Output Stream", interactive=True, lines=24)
                             
                 gr.Examples(
                     examples=[
@@ -390,39 +425,7 @@ def create_gradio_interface():
                     inputs=[image_input_doc, prompt_input_doc]
                 )
             
-            # --- TAB 2: Moondream3 Lab ---
-            with gr.TabItem("🌝 Moondream3"):
-                with gr.Row():
-                    with gr.Column(scale=1):
-                        md3_image_input = gr.Image(label="Upload an image", type="pil", height=400)
-                        md3_task_type = gr.Radio(
-                            choices=["Object Detection", "Point Detection", "Caption", "Visual Question Answering"],
-                            label="Task Type", value="Object Detection"
-                        )
-                        md3_prompt_input = gr.Textbox(
-                            label="Prompt (object to detect/question to ask)",
-                            placeholder="e.g., 'car', 'person', 'What's in this image?'"
-                        )
-                        md3_max_objects = gr.Number(
-                            label="Max Objects (for Object Detection only)",
-                            value=10, minimum=1, maximum=50, step=1, visible=True
-                        )
-                        md3_generate_btn = gr.Button(value="Submit", variant="primary")
-                    with gr.Column(scale=1):
-                        md3_output_image = gr.Image(type="pil", label="Result", height=400)
-                        md3_output_textbox = gr.Textbox(label="Model Response", lines=10, show_copy_button=True)
-                        md3_output_time = gr.Markdown()
 
-                gr.Examples(
-                    examples=[
-                        ["md3/1.jpg", "Object Detection", "boats", 7],
-                        ["md3/2.jpg", "Point Detection", "children", 7],
-                        ["md3/3.png", "Caption", "", 5],
-                        ["md3/4.jpeg", "Visual Question Answering", "Analyze the GDP trend over the years.", 5],
-                    ],
-                    inputs=[md3_image_input, md3_task_type, md3_prompt_input, md3_max_objects],
-                    label="Click an example to populate inputs"
-                )
 
         process_btn.click(
             fn=process_document_stream,
@@ -447,4 +450,4 @@ def create_gradio_interface():
 
 if __name__ == "__main__":
     demo = create_gradio_interface()
-    demo.queue(max_size=50).launch(ssr_mode=False, mcp_server=True, show_error=True)
+    demo.queue(max_size=50).launch(theme=steel_blue_theme, css=css, ssr_mode=False, mcp_server=True, show_error=True)
