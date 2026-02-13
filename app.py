@@ -30,9 +30,6 @@ from transformers import (
 from gradio.themes import Soft
 from gradio.themes.utils import colors, fonts, sizes
 
-# --- Theme and CSS Definition ---
-
-# Define the SteelBlue color palette
 colors.steel_blue = colors.Color(
     name="steel_blue",
     c50="#EBF3F8",
@@ -40,7 +37,7 @@ colors.steel_blue = colors.Color(
     c200="#A8CCE1",
     c300="#7DB3D2",
     c400="#529AC3",
-    c500="#4682B4",  # SteelBlue base color
+    c500="#4682B4",
     c600="#3E72A0",
     c700="#36638C",
     c800="#2E5378",
@@ -94,7 +91,6 @@ class SteelBlueTheme(Soft):
             block_label_background_fill="*primary_200",
         )
 
-# Instantiate the new theme
 steel_blue_theme = SteelBlueTheme()
 
 css = """
@@ -106,8 +102,6 @@ css = """
 }
 """
 
-
-# --- Constants and Model Setup ---
 MAX_INPUT_TOKEN_LENGTH = 4096
 MAX_MAX_NEW_TOKENS = 4096
 DEFAULT_MAX_NEW_TOKENS = 2048
@@ -125,26 +119,23 @@ if torch.cuda.is_available():
 print("Using device:", device)
 print("--------------------------")
 
-
-# --- Model Loading ---
-
-# Load Camel-Doc-OCR-062825
 print("Loading Camel-Doc-OCR-062825...")
 MODEL_ID_M = "prithivMLmods/Camel-Doc-OCR-062825"
 processor_m = AutoProcessor.from_pretrained(MODEL_ID_M, trust_remote_code=True)
 model_m = Qwen2_5_VLForConditionalGeneration.from_pretrained(
     MODEL_ID_M,
+    attn_implementation="kernels-community/flash-attn2",
     trust_remote_code=True,
     torch_dtype=torch.float16
 ).to(device).eval()
 print("Camel-Doc-OCR-062825 loaded.")
 
-# GLM-4.1V-9B-Thinking
 print("Loading GLM-4.1V-9B-Thinking")
 MODEL_ID_T = "zai-org/GLM-4.1V-9B-Thinking"
 processor_t = AutoProcessor.from_pretrained(MODEL_ID_T, trust_remote_code=True)
 model_t = Glm4vForConditionalGeneration.from_pretrained(
     MODEL_ID_T,
+    attn_implementation="kernels-community/flash-attn2",
     trust_remote_code=True,
     torch_dtype=torch.float16
 ).to(device).eval()
@@ -155,15 +146,13 @@ print("Loading moondream3-preview...")
 MODEL_ID_MD3 = "moondream/moondream3-preview"
 model_md3 = AutoModelForCausalLM.from_pretrained(
     MODEL_ID_MD3,
+    attn_implementation="kernels-community/flash-attn2",
     trust_remote_code=True,
     torch_dtype=torch.bfloat16,
     device_map={"": "cuda"},
 )
 model_md3.compile()
 print("moondream3-preview loaded and compiled.")
-
-
-# --- Moondream3 Utility Functions ---
 
 def create_annotated_image(image, detection_result, object_name="Object"):
     if not isinstance(detection_result, dict) or "objects" not in detection_result:
@@ -287,8 +276,6 @@ def detect_objects_md3(image, prompt, task_type, max_objects):
     
     return annotated_image, output_text, timing_text
 
-
-# --- Core Application Logic (for other models) ---
 @spaces.GPU
 def process_document_stream(
     model_name: str, 
@@ -390,7 +377,6 @@ def create_gradio_interface():
                     label="Click an example to populate inputs"
                 )
                 
-            # --- TAB 2: Document and General VLMs ---
             with gr.TabItem("📄 Document & General VLM"):
                 with gr.Row():
                     with gr.Column(scale=2):
