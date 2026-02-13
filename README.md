@@ -1,10 +1,16 @@
 # **Multimodal VLM v1.0**
 
+> [!note]
+HF Demo: https://huggingface.co/spaces/prithivMLmods/Multimodal-VLM-v1.0
+
 A comprehensive multimodal vision-language model application supporting image inference and visual question answering. This repository hosts a Gradio-based demo that integrates several specialized models for document processing, OCR, spatial reasoning, and object/point detection.
 
 <img width="1754" height="1171" alt="Screenshot 2025-10-16 at 12-00-45 Multimodal VLM v1 0 - a Hugging Face Space by prithivMLmods" src="https://github.com/user-attachments/assets/737e6b41-0e3f-4d98-8e0f-9f002126f017" />
 
 <img width="1771" height="1378" alt="Screenshot 2025-10-16 at 12-01-28 Multimodal VLM v1 0 - a Hugging Face Space by prithivMLmods" src="https://github.com/user-attachments/assets/55b80cf5-cac7-42df-b112-044d70594a77" />
+
+> [!important] 
+note: remove kernels and flash_attn3 implementation if you are using it on *non-hopper* architecture gpus.
 
 ## Project Highlights
 
